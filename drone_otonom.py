@@ -9,10 +9,42 @@ import time
 from mavros_msgs.msg import PositionTarget
 from mavros_msgs.srv import *
 from std_msgs.msg import String
+errorX = 0
+lastErrorX = 0;
 
+errorY = 0
+lastErrorY = 0;
+msg = PositionTarget()
 #from std_msgs.msg import Header
 def konum(data):
+	print "girdi"
+	global errorX
+	global errorY
+	global lastErrorX
+	global lastErrorY
+
 	knm = data.data
+	knm = knm.split(" ")
+	#print knm[0]
+	x= float(knm[0])
+	y= float(knm[1])
+	#print x
+	errorX = 300 - x
+	errorY = 225 - y
+
+	kp = 1.0/300.0
+	kd = 1.0/400.0
+
+	turevX = errorX-lastErrorX
+	donmeX =  errorX*kp + turevX*kd
+	lastErrorX = errorX
+	msg.yaw = msg.yaw + donmeX
+
+	turev_yukseklik = errorY-lastErrorY
+	yukseklikY =  errorY*kp + turev_yukseklik*kd
+
+	msg.velocity.z = msg.velocity.z + yukseklikY
+
 	#rospy.loginfo(knm)
 
 def listener():
@@ -20,36 +52,38 @@ def listener():
 	rospy.Subscriber('konum', String, konum) 
 	#rospy.spin()   
 def move():
-
+	global msg
 	deger ="0.0 0.0 0.0 0.0"
 	pub = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget,queue_size=10)
 
 	rospy.init_node('talker',anonymous=True)                           
 
-	msg = PositionTarget()
+	
 
 	msg.header.stamp = rospy.Time.now()
 	msg.header.frame_id= "world"
 	msg.coordinate_frame = 8
-	msg.type_mask=455
+	msg.type_mask=2503
 
 	msg.velocity.x = 0.0
 	msg.velocity.y = 0.0
 	msg.velocity.z = 0.0
 	msg.yaw = 0.0
-	msg.yaw_rate = 1.0
+	#msg.yaw_rate = 0.0
+	#pub.publish(msg)
+	#time.sleep(3.0)
 
 	def yaz():
-		print "girdi"
-		global deger
-		deger = input()
-		deger2 = deger.split(" ")
-		print float(deger2[0])
-		msg.velocity.x = float(deger2[0])
-		msg.velocity.y = float(deger2[1])
-		msg.velocity.z = float(deger2[2])
+		#print "girdi ", errorX
+		global msg
 
-		msg.yaw = float(deger2[3])
+		print "yaw = " , msg.yaw , " z = " , msg.velocity.z
+
+		msg.velocity.x = 0
+		msg.velocity.y = 0
+		
+
+		
 
 		t4 = threading.Thread(target=yaz)
 		t4.start()
@@ -62,7 +96,7 @@ def move():
 	#rate = rospy.Rate(0.1)                                                                                                   
 	while not rospy.is_shutdown():
 		
-
+		global msg
 		pub.publish(msg)
 		listener()
 		
@@ -74,13 +108,13 @@ if  __name__ == '__main__':
 
 	
 		
-	rospy.wait_for_service('/mavros/cmd/arming')
+	#rospy.wait_for_service('/mavros/cmd/arming')
 	 	
-	try:
-		armService = rospy.ServiceProxy('/mavros/cmd/arming', mavros_msgs.srv.CommandBool)
-		armService(True)
-	except rospy.ServiceException, e:
-		pass
+	#try:
+	#	#armService = rospy.ServiceProxy('/mavros/cmd/arming', mavros_msgs.srv.CommandBool)
+	#	armService(True)
+	#except rospy.ServiceException, e:
+	# 	pass
 
 	print "harun"
 	try:
