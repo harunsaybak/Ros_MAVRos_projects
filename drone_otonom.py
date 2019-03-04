@@ -6,38 +6,43 @@ import rospy
 import threading
 import time
 #from geometry_msgs.msg import Twist
-from geometry_msgs.msg import TwistStamped
+from mavros_msgs.msg import PositionTarget
 from mavros_msgs.srv import *
 #from std_msgs.msg import Header
 
 def move():
 
-	deger ="0 0 0"
-	pub = rospy.Publisher('/mavros/setpoint_velocity/cmd_vel', TwistStamped,queue_size=10)
-       
+	deger ="0.0 0.0 0.0 0.0"
+	pub = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget,queue_size=10)
+
 	rospy.init_node('talker',anonymous=True)                           
 
-	twist = TwistStamped()
-	twist.header.stamp = rospy.Time()
-	
-	twist.twist.linear.z = 0.0
-	twist.twist.linear.x = 0.0
-	twist.twist.linear.y = 0.0
-	
-	twist.twist.angular.x = 0.0
-	twist.twist.angular.y = 0.0
-	twist.twist.angular.z = 0.0
+	msg = PositionTarget()
+
+	msg.header.stamp = rospy.Time.now()
+	msg.header.frame_id= "world"
+	msg.coordinate_frame = 8
+	msg.type_mask=455
+
+	msg.velocity.x = 0.0
+	msg.velocity.y = 0.0
+	msg.velocity.z = 0.0
+	msg.yaw = 0.0
+	msg.yaw_rate = 1.0
 
 	def yaz():
-	    global deger
-	    deger = input()
-	    deger2 = deger.split(" ")
-	    twist.twist.linear.x = float(deger2[0])
-	    twist.twist.linear.y = float(deger2[1])
-	    twist.twist.linear.z = float(deger2[2])
-	    
-	    t4 = threading.Thread(target=yaz)
-	    t4.start()
+		global deger
+		deger = input()
+		deger2 = deger.split(" ")
+		print float(deger2[0])
+		msg.velocity.x = float(deger2[0])
+		msg.velocity.y = float(deger2[1])
+		msg.velocity.z = float(deger2[2])
+
+		msg.yaw = float(deger2[3])
+
+		t4 = threading.Thread(target=yaz)
+		t4.start()
 
 
 
@@ -48,15 +53,16 @@ def move():
 	while not rospy.is_shutdown():
 		
 
-		pub.publish(twist)
+		pub.publish(msg)
 		
 
 		#rate.sleep()                                                                            
 		
 
 if  __name__ == '__main__':
-	
+		
 	rospy.wait_for_service('/mavros/cmd/arming')
+		
 	try:
 		armService = rospy.ServiceProxy('/mavros/cmd/arming', mavros_msgs.srv.CommandBool)
 		armService(True)
