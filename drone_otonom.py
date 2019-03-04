@@ -8,8 +8,17 @@ import time
 #from geometry_msgs.msg import Twist
 from mavros_msgs.msg import PositionTarget
 from mavros_msgs.srv import *
-#from std_msgs.msg import Header
+from std_msgs.msg import String
 
+#from std_msgs.msg import Header
+def konum(data):
+	knm = data.data
+	#rospy.loginfo(knm)
+
+def listener():
+	#rospy.init_node('drone_otonomV2', anonymous=True)
+	rospy.Subscriber('konum', String, konum) 
+	#rospy.spin()   
 def move():
 
 	deger ="0.0 0.0 0.0 0.0"
@@ -31,6 +40,7 @@ def move():
 	msg.yaw_rate = 1.0
 
 	def yaz():
+		print "girdi"
 		global deger
 		deger = input()
 		deger2 = deger.split(" ")
@@ -54,15 +64,18 @@ def move():
 		
 
 		pub.publish(msg)
+		listener()
 		
 
 		#rate.sleep()                                                                            
 		
 
 if  __name__ == '__main__':
+
+	
 		
 	rospy.wait_for_service('/mavros/cmd/arming')
-		
+	 	
 	try:
 		armService = rospy.ServiceProxy('/mavros/cmd/arming', mavros_msgs.srv.CommandBool)
 		armService(True)
@@ -71,7 +84,9 @@ if  __name__ == '__main__':
 
 	print "harun"
 	try:
+		
 		move()
+
 	except rospy.ROSInterruptException:
 		pass
 
