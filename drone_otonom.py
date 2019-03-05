@@ -22,21 +22,24 @@ def konum(data):
 	global errorY
 	global lastErrorX
 	global lastErrorY
-
+	global msg 
 	knm = data.data
 	knm = knm.split(" ")
 	#print knm[0]
 	x= float(knm[0])
 	y= float(knm[1])
 	#print x
-	errorX = 300 - x
-	errorY = 225 - y
+	errorX = x - 300.0
+	errorY = 200.0 - y
 
-	kp = 1.0/200.0
+	kp = 1.0/250.0
 	kd = 1.0/300.0
 
 	turevX = errorX-lastErrorX
 	donmeX =  errorX*kp + turevX*kd
+	print "donme= " , donmeX 
+	msg.velocity.x = donmeX
+
 	lastErrorX = errorX
 	#msg.yaw = msg.yaw + donmeX
 
@@ -75,11 +78,11 @@ def move():
 
 	def yaz():
 		#print "girdi ", errorX
-		global msg
+		
 
-		print " z = " , msg.velocity.z
+		print " x = " , msg.velocity.x
 
-		msg.velocity.x = 0
+		#msg.velocity.x = 0
 		msg.velocity.y = 0
 		msg.yaw = 0.0
 
