@@ -17,7 +17,7 @@ lastErrorY = 0;
 msg = PositionTarget()
 #from std_msgs.msg import Header
 def konum(data):
-	print "girdi"
+	#print "girdi"
 	global errorX
 	global errorY
 	global lastErrorX
@@ -32,18 +32,18 @@ def konum(data):
 	errorX = 300 - x
 	errorY = 225 - y
 
-	kp = 1.0/300.0
-	kd = 1.0/400.0
+	kp = 1.0/200.0
+	kd = 1.0/300.0
 
 	turevX = errorX-lastErrorX
 	donmeX =  errorX*kp + turevX*kd
 	lastErrorX = errorX
-	msg.yaw = msg.yaw + donmeX
+	#msg.yaw = msg.yaw + donmeX
 
 	turev_yukseklik = errorY-lastErrorY
 	yukseklikY =  errorY*kp + turev_yukseklik*kd
 
-	msg.velocity.z = msg.velocity.z + yukseklikY
+	msg.velocity.z = yukseklikY
 
 	#rospy.loginfo(knm)
 
@@ -77,11 +77,11 @@ def move():
 		#print "girdi ", errorX
 		global msg
 
-		print "yaw = " , msg.yaw , " z = " , msg.velocity.z
+		print " z = " , msg.velocity.z
 
 		msg.velocity.x = 0
 		msg.velocity.y = 0
-		
+		msg.yaw = 0.0
 
 		
 
