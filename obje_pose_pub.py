@@ -232,8 +232,10 @@ if __name__ == '__main__':
             """
             print(int(x),int(y))
             pub.publish(konum)  
-            rate.sleep()                   
+            rate.sleep()  
+                 
             time.sleep(0.5)
+
             M = cv2.moments(c)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
