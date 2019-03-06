@@ -119,6 +119,7 @@ def setpoint_demo():
 
     setpoint = SetpointPosition()
     
+    setpoint.set(0.0, 0.0, 0.0, 0.0, 5.0)  # offboard modundan once veri gonderilir, 5 saniye bekle
     #setOffboardMode
     set_mode_client = rospy.ServiceProxy('/mavros/set_mode', SetMode) 
     set_mode_client(base_mode=0, custom_mode="OFFBOARD")
