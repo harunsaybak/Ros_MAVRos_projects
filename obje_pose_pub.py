@@ -168,8 +168,9 @@ if __name__ == '__main__':
     time.sleep(2.0)
 
 
-    end = 0
-    start =datetime.datetime.now().second
+    
+    start = 0
+    end =datetime.datetime.now().second
 # keep looping
     while True:
         
@@ -219,14 +220,20 @@ if __name__ == '__main__':
             
 
             konum = str(x) + " " + str(y) 
-            #rospy.loginfo(konum)                                                                                   
+            #rospy.loginfo(konum)
+            """                                                                                   
             if end - start >= 1:
                 start =datetime.datetime.now().second
                 print(int(x),int(y))
-                pub.publish(konum)                                                        
-            end = datetime.datetime.now().second
-            rate.sleep()                   
+                pub.publish(konum)
 
+            end = datetime.datetime.now().second
+            
+            """
+            print(int(x),int(y))
+            pub.publish(konum)  
+            rate.sleep()                   
+            time.sleep(0.5)
             M = cv2.moments(c)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
