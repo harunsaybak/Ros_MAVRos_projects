@@ -104,8 +104,8 @@ if __name__ == '__main__':
             M = cv2.moments(c)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
-            konum = str(x) + " " + str(y) 
-            print(int(x),int(y))
+            konum = str(x) + " " + str(y) + " " + str(radius)
+            print(int(x),int(y),int(radius))
             pub.publish(konum)  
             rate.sleep()                   
             time.sleep(0.1)
