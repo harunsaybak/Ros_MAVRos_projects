@@ -13,13 +13,17 @@ from mavros_msgs.srv import *
 from std_msgs.msg import String
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from mavros_msgs.msg import State
 
 msg = PositionTarget()
 
 lastErrorY = 0
 lastErrorR = 0
 
+current_state=State()
+
 def call_back(data):
+	rospy.loginfo("cameradan veri geldi")
 	global lastErrorY
 	global lastErrorR
 
@@ -89,9 +93,13 @@ def get_rotation (msg):
     #print "yaw_degrees HAS " , yaw_degrees
 	
 
-
+def state_cb(state):
+    global current_state
+    current_state = state
 
 if  __name__ == '__main__':
+
+	global current_state
 
 	rospy.init_node('talker',anonymous=True)
 	rate = rospy.Rate(20)
@@ -105,15 +113,15 @@ if  __name__ == '__main__':
 	 	pass
 	
 	set_mode = rospy.ServiceProxy(mavros.get_topic('set_mode'), mavros_msgs.srv.SetMode)
-	
+	state_sub = rospy.Subscriber(mavros.get_topic('state'), State, state_cb)
 
-	print "harun"
+	rospy.loginfo("arming succesfull")
 
 	pub = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget,queue_size=10)
 
 	msg.header.stamp = rospy.Time.now()
 	msg.header.frame_id = "world"
-	msg.coordinate_frame = PositionTarget.FRAME_BODY_NED
+	msg.coordinate_frame = PositionTarget.FRAME_BODY_OFFSET_NED
 	msg.type_mask = PositionTarget.IGNORE_VX | PositionTarget.IGNORE_VY | PositionTarget.IGNORE_VZ | PositionTarget.IGNORE_AFX | PositionTarget.IGNORE_AFY | PositionTarget.IGNORE_AFZ | PositionTarget.IGNORE_YAW| PositionTarget.IGNORE_YAW_RATE
 
 	msg.position.x = 0.0
@@ -123,20 +131,16 @@ if  __name__ == '__main__':
 
 	counter = 0
 
+	rospy.loginfo("ilk veri gonderilcek")
 
-	while 1:
+
+	while current_state.mode != "OFFBOARD":
 			
 		pub.publish(msg)
-
-		counter= counter + 1
-
-		if (counter >5 and counter<10):
-			set_mode(0,'OFFBOARD')
-		if( counter>100 ):
-			break
-
-			print counter
-
+		 
+		set_mode(0,'OFFBOARD')
+		rospy.loginfo("OFFBOARD mod istegi gonderildi")
+		
 		rate.sleep()
 
 
@@ -146,19 +150,14 @@ if  __name__ == '__main__':
 	msg.velocity.y = 0.0
 	msg.velocity.z = 0.0
 	msg.yaw = 0.0
-
+	rospy.loginfo("velocity asamasina gecildi")
 	try:
 		
 		sub = rospy.Subscriber ('/mavros/local_position/odom', Odometry, get_rotation)	
 	
 		rospy.Subscriber('konum', String, call_back) # kamera goruntusunden x,y kordinatlari
 		
-		
-		print "mdmmd"
-
-		
-		print "girdimv"
-		
+		rospy.loginfo("Subscriber islemleri tamam")
 		
 
 		while not rospy.is_shutdown():
